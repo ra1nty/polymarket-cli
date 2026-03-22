@@ -185,7 +185,7 @@ def _resolve_market_filters(args: argparse.Namespace) -> dict[str, Any]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="pmkt",
+        prog="polymarket-cli",
         description="Read-only Polymarket Gamma + CLOB CLI for market discovery, price snapshots, trades, and history",
     )
     sub = parser.add_subparsers(dest="command", required=True)

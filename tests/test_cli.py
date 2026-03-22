@@ -111,6 +111,12 @@ class CliTests(unittest.TestCase):
             ),
         )
 
+    def test_parser_uses_public_command_name(self):
+        parser = cli.build_parser()
+
+        self.assertEqual(parser.prog, "polymarket-cli")
+        self.assertIn("usage: polymarket-cli", parser.format_help())
+
     def test_list_passes_advanced_filtering_flags(self):
         rc, output, client = self.run_cli(
             [

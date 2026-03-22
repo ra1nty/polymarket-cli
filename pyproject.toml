@@ -13,7 +13,7 @@ license = { text = "MIT" }
 dependencies = []
 
 [project.scripts]
-pmkt = "polymarket_cli.cli:main"
+polymarket-cli = "polymarket_cli.cli:main"
 
 [tool.uv.build-backend]
 module-name = "polymarket_cli"

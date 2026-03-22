@@ -4,13 +4,7 @@ Read-only CLI for public Polymarket Gamma, CLOB, and Data API lookups.
 
 This package stays intentionally narrow: public, unauthenticated reads only. It does not place orders, manage wallets, sign anything, or depend on private APIs.
 
-The published Python distribution is `polymarket-cli`, the import package is `polymarket_cli`, and the command is `polymarket-cli`.
-
-Formal release metadata:
-
-- License: MIT
-- Homepage: https://github.com/ra1nty/polymarket-cli
-- Issues: https://github.com/ra1nty/polymarket-cli/issues
+The published Pypi package is `polymarket-cli`. 
 
 ## What It Covers
 

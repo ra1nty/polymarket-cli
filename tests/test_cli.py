@@ -7,8 +7,8 @@ import unittest
 from contextlib import redirect_stdout
 from unittest.mock import patch
 
-from polymarket_clob_agent import cli
-from polymarket_clob_agent.formatting import parse_duration_to_seconds
+from polymarket_cli import cli
+from polymarket_cli.formatting import parse_duration_to_seconds
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -71,7 +71,7 @@ class CliTests(unittest.TestCase):
 
     def run_cli(self, argv):
         buf = io.StringIO()
-        with patch("polymarket_clob_agent.cli.PolymarketClient", FakeClient):
+        with patch("polymarket_cli.cli.PolymarketClient", FakeClient):
             with redirect_stdout(buf):
                 rc = cli.main(argv)
         client = FakeClient.instances[-1]
@@ -231,7 +231,7 @@ class CliTests(unittest.TestCase):
                 super().__init__()
                 self.search = [search_row]
 
-        with patch("polymarket_clob_agent.cli.PolymarketClient", RankingClient):
+        with patch("polymarket_cli.cli.PolymarketClient", RankingClient):
             with redirect_stdout(buf):
                 rc = cli.main(["search", "iran", "--json"])
         client = RankingClient.instances[-1]
@@ -319,7 +319,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(client.calls[1], ("get_trades", None, "0xba3509c3c29a52bb2f8cf8204755314a38461825e61e77e6350f5abd4b848e05", 2))
 
     def test_trades_requires_condition_or_market_selector(self):
-        with patch("polymarket_clob_agent.cli.PolymarketClient", FakeClient):
+        with patch("polymarket_cli.cli.PolymarketClient", FakeClient):
             with self.assertRaises(SystemExit) as ctx:
                 cli.main(["trades"])
 

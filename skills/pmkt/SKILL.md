@@ -1,5 +1,5 @@
 ---
-name: pmkt-agent
+name: pmkt
 description: Use the pmkt CLI for read-only Polymarket market discovery, market/token resolution, price snapshots, history, trades, and JSON-safe scripting.
 ---
 
@@ -11,6 +11,13 @@ Default to the uv tools workflow for this repo:
 
 ```bash
 uv tool install --editable .
+pmkt --help
+```
+
+For the published package:
+
+```bash
+uv tool install polymarket-cli
 pmkt --help
 ```
 
@@ -61,6 +68,7 @@ pmkt trades --condition-id <condition-id> --json
 ## Working rules
 
 - Prefer the installed `pmkt` executable from `uv tool install --editable .` when working in this checkout.
+- Prefer `uv tool install polymarket-cli` when you only need the released CLI rather than a live checkout.
 - Use `uvx --from . pmkt ...` for ephemeral runs where installation would add unnecessary state.
 - Prefer `--json` whenever another step will parse the result.
 - Use `search ... --with-odds` for a one-shot ranked market list with live outcome prices.

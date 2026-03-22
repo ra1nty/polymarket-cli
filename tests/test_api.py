@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import unittest
 
-from polymarket_clob_agent.api import ApiError, PolymarketClient
+from polymarket_cli.api import ApiError, PolymarketClient
 
 
 FIXTURES = Path(__file__).parent / "fixtures"

@@ -10,7 +10,7 @@ from typing import Any, Iterable
 from .formatting import coerce_float, parse_datetime
 
 DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; polymarket-clob-agent/0.1)",
+    "User-Agent": "Mozilla/5.0 (compatible; polymarket-cli/0.1)",
     "Accept": "application/json",
 }
 

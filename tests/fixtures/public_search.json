@@ -1,0 +1,38 @@
+{
+  "events": [
+    {
+      "id": "292275",
+      "slug": "btc-updown-5m-1774165800",
+      "title": "Bitcoin Up or Down - March 22, 3:50AM-3:55AM ET",
+      "markets": [
+        {
+          "id": "1669969",
+          "question": "Bitcoin Up or Down - March 22, 3:50AM-3:55AM ET",
+          "conditionId": "0xba3509c3c29a52bb2f8cf8204755314a38461825e61e77e6350f5abd4b848e05",
+          "slug": "btc-updown-5m-1774165800",
+          "outcomes": "[\"Up\", \"Down\"]",
+          "outcomePrices": "[\"0.005\", \"0.995\"]",
+          "clobTokenIds": "[\"94242206871221370391055736153305071391564432448684801902267396130896523340261\", \"22943400237250229318795315882775337816951160275867284205243766113690886285726\"]",
+          "active": true,
+          "closed": false,
+          "archived": false,
+          "acceptingOrders": true,
+          "liquidity": "19748.9135",
+          "volume24hr": 70934.07902500001,
+          "endDate": "2026-03-22T07:55:00Z",
+          "events": [
+            {
+              "slug": "btc-updown-5m-1774165800"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tags": [],
+  "profiles": [],
+  "pagination": {
+    "hasMore": false,
+    "totalResults": 1
+  }
+}

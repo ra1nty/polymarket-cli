@@ -29,22 +29,28 @@ uvx polymarket-cli --help
 
 If your `uv` tool bin directory is not on `PATH`, either run `uv tool update-shell` or call the binary directly from `$(uv tool dir --bin)`.
 
-## Claude Code And Codex
+## Agent Skill Installation
 
-In Claude Code or Codex, install the published CLI in the agent shell environment:
+Install the packaged skill with `npx skills`:
+
+### OpenClaw
 
 ```bash
-uv tool install polymarket-cli
+npx skills add ra1nty/polymarket-cli -a openclaw
+```
+
+### Claude Code
+
+```bash
+npx skills add ra1nty/polymarket-cli -a claude-code
+```
+
+After installation, use the public command surface in agent prompts and automation:
+
+```bash
 polymarket-cli search bitcoin --limit 5
+polymarket-cli market --slug <market-slug> --json
 ```
-
-For ephemeral runs inside those environments:
-
-```bash
-uvx polymarket-cli market --slug <market-slug> --json
-```
-
-If you want the agent to treat this repo as a reusable skill bundle, use the bundled skill at `skills/polymarket-cli/`.
 
 ## Usage
 

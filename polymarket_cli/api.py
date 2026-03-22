@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import json
+import os
+import ssl
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Iterable
+
+import certifi
 
 from .formatting import coerce_float, parse_datetime
 
@@ -14,7 +18,7 @@ DEFAULT_HEADERS = {
     "Accept": "application/json",
 }
 
-GAMMA_ORDER_MAP = {
+MARKET_ORDER_MAP = {
     "volume24hr": "volume_24hr",
     "volume_24hr": "volume_24hr",
     "volume": "volume",
@@ -26,6 +30,15 @@ GAMMA_ORDER_MAP = {
     "competitive": "competitive",
     "closedTime": "closed_time",
     "closed_time": "closed_time",
+}
+GAMMA_ORDER_PARAM_MAP = {
+    "volume_24hr": "volume24hr",
+    "volume": "volume",
+    "liquidity": "liquidity",
+    "start_date": "startDate",
+    "end_date": "endDate",
+    "competitive": "competitive",
+    "closed_time": "closedTime",
 }
 
 HISTORY_INTERVALS = {"max", "all", "1m", "1h", "6h", "1d", "1w"}
@@ -50,16 +63,27 @@ class ApiError(RuntimeError):
     pass
 
 
+def create_ssl_context() -> ssl.SSLContext:
+    # Respect explicit user overrides. Otherwise, use certifi's CA bundle so
+    # uv/Homebrew-installed Python builds do not depend on broken local defaults.
+    if os.environ.get("SSL_CERT_FILE") or os.environ.get("SSL_CERT_DIR"):
+        return ssl.create_default_context()
+    return ssl.create_default_context(cafile=certifi.where())
+
+
 @dataclass
 class HttpClient:
     timeout: float = 20.0
     headers: dict[str, str] | None = None
+    ssl_context: ssl.SSLContext | None = None
 
     def __post_init__(self) -> None:
         merged = dict(DEFAULT_HEADERS)
         if self.headers:
             merged.update(self.headers)
         self.headers = merged
+        if self.ssl_context is None:
+            self.ssl_context = create_ssl_context()
 
     def _iter_param_pairs(self, params: dict[str, Any]) -> Iterable[tuple[str, str]]:
         for key, value in params.items():
@@ -84,7 +108,7 @@ class HttpClient:
             url = f"{url}{sep}{query}"
         req = urllib.request.Request(url, headers=self.headers)
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout, context=self.ssl_context) as resp:
                 return json.load(resp)
         except Exception as exc:  # pragma: no cover - exercised through tests with stubs
             raise ApiError(f"GET {url} failed: {exc}") from exc
@@ -129,7 +153,7 @@ class PolymarketClient:
             "active": active,
             "closed": closed,
             "archived": archived,
-            "order": gamma_order,
+            "order": GAMMA_ORDER_PARAM_MAP[gamma_order],
             "ascending": ascending,
         }
         if search:
@@ -461,9 +485,9 @@ class PolymarketClient:
 
     def _normalize_market_order(self, order: str) -> str:
         try:
-            return GAMMA_ORDER_MAP[order]
+            return MARKET_ORDER_MAP[order]
         except KeyError as exc:
-            valid = ", ".join(sorted(GAMMA_ORDER_MAP))
+            valid = ", ".join(sorted(MARKET_ORDER_MAP))
             raise ValueError(f"Unsupported market sort field: {order}. Choose from: {valid}") from exc
 
     def _filter_markets(

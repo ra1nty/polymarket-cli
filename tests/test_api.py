@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import ssl
 import unittest
+from unittest.mock import Mock, patch
 
-from polymarket_cli.api import ApiError, PolymarketClient
+from polymarket_cli.api import ApiError, HttpClient, PolymarketClient, create_ssl_context
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -30,6 +33,49 @@ class StubHttpClient:
 
 
 class PolymarketClientTests(unittest.TestCase):
+    def test_create_ssl_context_uses_certifi_bundle_by_default(self):
+        sentinel_context = object()
+        create_default_context = Mock(return_value=sentinel_context)
+
+        with patch.dict(os.environ, {}, clear=True):
+            with patch("polymarket_cli.api.certifi.where", return_value="/tmp/certifi.pem") as certifi_where:
+                with patch("polymarket_cli.api.ssl.create_default_context", create_default_context):
+                    context = create_ssl_context()
+
+        self.assertIs(context, sentinel_context)
+        certifi_where.assert_called_once_with()
+        create_default_context.assert_called_once_with(cafile="/tmp/certifi.pem")
+
+    def test_create_ssl_context_respects_ssl_cert_file_override(self):
+        sentinel_context = object()
+        create_default_context = Mock(return_value=sentinel_context)
+
+        with patch.dict(os.environ, {"SSL_CERT_FILE": "/tmp/custom.pem"}, clear=True):
+            with patch("polymarket_cli.api.certifi.where") as certifi_where:
+                with patch("polymarket_cli.api.ssl.create_default_context", create_default_context):
+                    context = create_ssl_context()
+
+        self.assertIs(context, sentinel_context)
+        certifi_where.assert_not_called()
+        create_default_context.assert_called_once_with()
+
+    def test_http_client_passes_ssl_context_to_urlopen(self):
+        response = Mock()
+        response.__enter__ = Mock(return_value=response)
+        response.__exit__ = Mock(return_value=False)
+        sentinel_context = ssl.create_default_context()
+
+        with patch("polymarket_cli.api.json.load", return_value={"ok": True}) as json_load:
+            with patch("polymarket_cli.api.urllib.request.urlopen", return_value=response) as urlopen:
+                client = HttpClient(ssl_context=sentinel_context)
+                payload = client.get_json("https://example.com/data", {"active": True})
+
+        self.assertEqual(payload, {"ok": True})
+        json_load.assert_called_once_with(response)
+        urlopen.assert_called_once()
+        _, kwargs = urlopen.call_args
+        self.assertIs(kwargs["context"], sentinel_context)
+
     def test_get_market_slug_falls_back_to_markets_query(self):
         slug = "btc-updown-5m-1774165800"
         detail = load_fixture("market_detail.json")
@@ -48,7 +94,7 @@ class PolymarketClientTests(unittest.TestCase):
                         "active": None,
                         "closed": None,
                         "archived": None,
-                        "order": "volume_24hr",
+                        "order": "volume24hr",
                         "ascending": False,
                         "slug": slug,
                     },
@@ -82,7 +128,7 @@ class PolymarketClientTests(unittest.TestCase):
                         "active": None,
                         "closed": None,
                         "archived": None,
-                        "order": "volume_24hr",
+                        "order": "volume24hr",
                         "ascending": False,
                         "slug": slug,
                     },
@@ -227,7 +273,7 @@ class PolymarketClientTests(unittest.TestCase):
                         "active": None,
                         "closed": None,
                         "archived": None,
-                        "order": "volume_24hr",
+                        "order": "volume24hr",
                         "ascending": False,
                         "search": "iran",
                     },
@@ -317,7 +363,7 @@ class PolymarketClientTests(unittest.TestCase):
                         "active": None,
                         "closed": None,
                         "archived": None,
-                        "order": "volume_24hr",
+                        "order": "volume24hr",
                         "ascending": False,
                         "search": "iran",
                     },
@@ -414,7 +460,7 @@ class PolymarketClientTests(unittest.TestCase):
                         "active": None,
                         "closed": None,
                         "archived": None,
-                        "order": "volume_24hr",
+                        "order": "volume24hr",
                         "ascending": False,
                         "search": "iran",
                     },
@@ -477,7 +523,7 @@ class PolymarketClientTests(unittest.TestCase):
                         "active": True,
                         "closed": False,
                         "archived": False,
-                        "order": "end_date",
+                        "order": "endDate",
                         "ascending": True,
                     },
                     [markets[0], other],

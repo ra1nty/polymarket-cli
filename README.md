@@ -21,6 +21,8 @@ uv tool install polymarket-cli
 polymarket-cli --help
 ```
 
+The published package pins a bundled CA root store via `certifi`, so HTTPS works consistently in environments where `uv` or Homebrew Python points at an incomplete local OpenSSL trust store. If you already manage trust with `SSL_CERT_FILE` or `SSL_CERT_DIR`, the CLI respects those overrides.
+
 For one-off execution:
 
 ```bash

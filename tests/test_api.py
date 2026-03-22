@@ -222,6 +222,48 @@ class PolymarketClientTests(unittest.TestCase):
         self.assertEqual(len(markets), 1)
         self.assertEqual(markets[0]["id"], "1669969")
 
+    def test_search_markets_keeps_plain_hydrated_query_on_public_search(self):
+        detail = load_fixture("market_detail.json")
+        public_search = {
+            "events": [
+                {
+                    "markets": [
+                        {
+                            "slug": detail["slug"],
+                            "question": detail["question"],
+                            "id": None,
+                            "conditionId": None,
+                            "volume24hr": None,
+                        }
+                    ]
+                }
+            ]
+        }
+        http = StubHttpClient(
+            [
+                (
+                    "https://gamma-api.polymarket.com/public-search",
+                    {
+                        "q": "bitcoin",
+                        "limit_per_type": 50,
+                        "search_tags": False,
+                        "search_profiles": False,
+                        "optimized": True,
+                    },
+                    public_search,
+                ),
+                (f"https://gamma-api.polymarket.com/markets/slug/{detail['slug']}", None, detail),
+            ]
+        )
+
+        client = PolymarketClient(http=http)
+
+        markets = client.search_markets("bitcoin", hydrate=True)
+
+        self.assertEqual(len(markets), 1)
+        self.assertEqual(markets[0]["slug"], detail["slug"])
+        self.assertTrue(markets[0]["clobTokenIds"])
+
     def test_search_markets_falls_back_to_public_search_and_hydrates_ranked_results(self):
         detail_a = load_fixture("market_detail.json")
         detail_b = dict(detail_a)

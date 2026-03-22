@@ -229,7 +229,7 @@ class PolymarketClient:
             return []
 
         gamma_order = self._normalize_market_order(order)
-        requires_ranked_search = any(
+        requires_market_search = any(
             value
             for value in (
                 offset,
@@ -249,10 +249,9 @@ class PolymarketClient:
                 active is not True,
                 closed is not False,
                 gamma_order != "volume_24hr",
-                hydrate,
             )
         )
-        if requires_ranked_search:
+        if requires_market_search:
             try:
                 return self.list_markets(
                     limit=limit,
@@ -279,12 +278,16 @@ class PolymarketClient:
             except ApiError:
                 pass
 
-        candidate_limit = self._search_candidate_limit(limit=limit, offset=offset, hydrate=hydrate or requires_ranked_search)
+        candidate_limit = self._search_candidate_limit(
+            limit=limit,
+            offset=offset,
+            hydrate=hydrate or requires_market_search,
+        )
         markets = self._search_public_markets(query, limit=candidate_limit)
         if not markets:
             return []
 
-        if hydrate or requires_ranked_search:
+        if hydrate or self._public_search_needs_hydration(markets, order=gamma_order):
             markets = self._hydrate_markets(markets, order=gamma_order, include_tokens=True)
 
         filtered = self._filter_markets(
@@ -378,6 +381,9 @@ class PolymarketClient:
         if not hydrate:
             return max(minimum, 1)
         return max(minimum * 5, 25)
+
+    def _public_search_needs_hydration(self, markets: list[dict[str, Any]], *, order: str) -> bool:
+        return any(self._market_needs_hydration(dict(market), order=order, include_tokens=False) for market in markets)
 
     def _hydrate_markets(self, markets: list[dict[str, Any]], *, order: str, include_tokens: bool) -> list[dict[str, Any]]:
         hydrated = []

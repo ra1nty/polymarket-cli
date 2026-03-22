@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "polymarket-cli"
-version = "0.2.1"
+version = "0.2.2"
 description = "Production-oriented read-only CLI wrapper around Polymarket public Gamma + CLOB APIs"
 readme = "README.md"
 requires-python = ">=3.11"

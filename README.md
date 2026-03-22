@@ -6,6 +6,12 @@ This package stays intentionally narrow: public, unauthenticated reads only. It 
 
 The published Python distribution is `polymarket-cli`, the import package is `polymarket_cli`, and the command is `polymarket-cli`.
 
+Formal release metadata:
+
+- License: MIT
+- Homepage: https://github.com/ra1nty/polymarket-cli
+- Issues: https://github.com/ra1nty/polymarket-cli/issues
+
 ## What It Covers
 
 - Market discovery via `search` and `list`

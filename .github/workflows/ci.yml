@@ -27,4 +27,4 @@ jobs:
         run: uv build
 
       - name: Smoke test built wheel
-        run: uvx --from dist/polymarket_cli-*.whl pmkt --help
+        run: uvx --from dist/polymarket_cli-*.whl polymarket-cli --help
